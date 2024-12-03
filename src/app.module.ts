@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from "@nestjs/typeorm";
-
-console.log("USER", process.env.POSTGRES_USER);
-console.log("PASSWORD", process.env.POSTGRES_PASSWORD);
+import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from "@nestjs/config";
 
 @Module({
   imports: [
@@ -16,9 +16,12 @@ console.log("PASSWORD", process.env.POSTGRES_PASSWORD);
       password: process.env.POSTGRES_PASSWORD || 'postgres',
       database: process.env.POSTGRES_DB || 'nestdb',
       autoLoadEntities: true,
-      synchronize: true, // Disable in production
       retryDelay: 3000,
+      synchronize: true, // TODO: Remove it and use migrations
     }),
+    UserModule,
+    AuthModule,
+    ConfigModule.forRoot({ isGlobal: true }),
   ],
   controllers: [AppController],
   providers: [AppService],
