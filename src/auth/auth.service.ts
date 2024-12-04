@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from "@nestjs/common";
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { User } from "../user/user.entity";
@@ -68,7 +68,10 @@ export class AuthService {
 
       return { accessToken: newAccessToken };
     } catch (error) {
-      throw new Error('Invalid refresh token');
+      if (error.name === 'TokenExpiredError') {
+        throw new ForbiddenException('Refresh token expired');
+      }
+      throw new ForbiddenException('Invalid refresh token');
     }
   }
 }
