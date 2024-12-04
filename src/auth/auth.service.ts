@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable } from "@nestjs/common";
-import { JwtService } from '@nestjs/jwt';
-import { UserService } from '../user/user.service';
+import { JwtService } from "@nestjs/jwt";
+import { UserService } from "../user/user.service";
 import { User } from "../user/user.entity";
 import { LoginDto } from "./dto/login.dto";
 import { ConfigService } from "@nestjs/config";
@@ -12,6 +12,15 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
+
+  async validateJwt(token: string) {
+    try {
+      const payload = await this.jwtService.verifyAsync(token);
+      return { userId: payload.sub, username: payload.username };
+    } catch (err) {
+      return null;
+    }
+  }
 
   async validateUser(loginDto: LoginDto): Promise<User | null> {
     const { email, password } = loginDto;

@@ -1,10 +1,11 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { Module } from "@nestjs/common";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { UserModule } from './user/user.module';
-import { AuthModule } from './auth/auth.module';
+import { UserModule } from "./user/user.module";
+import { AuthModule } from "./auth/auth.module";
 import { ConfigModule } from "@nestjs/config";
+import { ChatModule } from "./chat/chat.module";
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ConfigModule } from "@nestjs/config";
     }),
     UserModule,
     AuthModule,
+    ChatModule,
     ConfigModule.forRoot({ isGlobal: true }),
   ],
   controllers: [AppController],
