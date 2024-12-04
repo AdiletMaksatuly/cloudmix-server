@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from './user.entity';
-import * as bcrypt from 'bcrypt';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Like, Repository } from "typeorm";
+import { User } from "./user.entity";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class UserService {
@@ -42,8 +42,13 @@ export class UserService {
     return bcrypt.compare(password, hashedPassword);
   }
 
-  async getAllUsers(): Promise<Omit<User, 'password'>[]> {
-    const users = await this.userRepository.find();
+  async getAllUsers(name?: string): Promise<Omit<User, 'password'>[]> {
+    const whereCondition = name
+      ? { username: Like(`%${name}%`) }
+      : {};
+
+    const users = await this.userRepository.find({ where: whereCondition });
+
     return users.map(({ password, ...user }) => user);
   }
 }
