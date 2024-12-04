@@ -10,7 +10,6 @@ export class ChatController {
     return await this.chatService.getChats(userId);
   }
 
-  // Get messages for a specific chat room
   @Get(':roomId/messages')
   async getChatMessages(@Param('roomId') roomId: number) {
     return await this.chatService.getChatMessages(roomId);
