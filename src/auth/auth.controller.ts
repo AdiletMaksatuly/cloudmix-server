@@ -30,11 +30,11 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto) {
     const user = await this.authService.validateUser(loginDto);
 
-    await this.userService.changeUserStatus(user.id, true);
-
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
+
+    await this.userService.changeUserStatus(user.id, true);
 
     return this.authService.login(user);
   }
