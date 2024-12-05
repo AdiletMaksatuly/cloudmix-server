@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from "@nestjs/common";
+import { ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { UserService } from "../user/user.service";
 import { User } from "../user/user.entity";
@@ -7,6 +7,8 @@ import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class AuthService {
+  private readonly blacklistedTokens: Set<string> = new Set();
+
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
@@ -14,12 +16,21 @@ export class AuthService {
   ) {}
 
   async validateJwt(token: string) {
+    if (this.blacklistedTokens.has(token)) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
     try {
       const payload = await this.jwtService.verifyAsync(token);
+
       return { userId: payload.sub, username: payload.username };
     } catch (err) {
-      return null;
+      throw new UnauthorizedException('Invalid token');
     }
+  }
+
+  blacklistToken(token: string): void {
+    this.blacklistedTokens.add(token);
   }
 
   async validateUser(loginDto: LoginDto): Promise<User | null> {

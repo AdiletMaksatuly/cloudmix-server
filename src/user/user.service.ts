@@ -52,4 +52,8 @@ export class UserService {
 
     return users.map(({ password, ...user }) => user);
   }
+
+  async changeUserStatus(id: number, isOnline: boolean) {
+    await this.userRepository.update({ id }, { isOnline });
+  }
 }

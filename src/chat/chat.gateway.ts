@@ -26,6 +26,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @InjectRepository(User)
   private userRepository: Repository<User>;
 
+  userSockets: Map<string, Socket> = new Map();
+
   constructor(
     private readonly chatService: ChatService,
     private readonly authService: AuthService
@@ -41,6 +43,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         }
 
         const user = await this.authService.validateJwt(token);
+
         if (!user) {
           throw new Error('Invalid token');
         }
@@ -53,23 +56,19 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     });
   }
 
-  async handleConnection(client: Socket) {
-    const userId = client.handshake.query.userId as string;
+  handleConnection(@ConnectedSocket() client: Socket) {
+    const userId = (client.handshake.query.userId as string) || null;
 
     if (userId) {
-      await this.userRepository.update({ id: +userId }, { isOnline: true });
-
-      this.server.emit('userStatusChanged', { userId, isOnline: true });
+      this.userSockets.set(userId, client);
     }
   }
 
-  async handleDisconnect(client: Socket) {
-    const userId = client.handshake.query.userId as string;
+  async handleDisconnect(@ConnectedSocket() client: Socket) {
+    const userId = (client.handshake.query.userId as string) || null;
 
     if (userId) {
-      await this.userRepository.update({ id: +userId }, { isOnline: false });
-
-      this.server.emit('userStatusChanged', { userId, isOnline: false });
+      this.userSockets.delete(userId);
     }
   }
 
